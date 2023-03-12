@@ -1,8 +1,12 @@
 from django.urls import path
 
-from ads.views import CatListCreateView, CategoryDetailView
+from ads import views
+from ads.views import CategoryListView
 
 urlpatterns = [
-    path('', CatListCreateView.as_view()),
-    path('<int:pk>', CategoryDetailView.as_view())
+    path('', CategoryListView.as_view(), name='category_list'),
+    path('create/', views.CategoryCreateView.as_view()),
+    path('<int:pk>/update/', views.CategoryUpdateView.as_view()),
+    path('<int:pk>/', views.CategoryDetailView.as_view()),
+    path('<int:pk>/delete/', views.CategoryDeleteView.as_view())
 ]
