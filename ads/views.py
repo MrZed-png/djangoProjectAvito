@@ -1,11 +1,13 @@
 import json
 from django.core.paginator import Paginator
+from django.db.models import Count, Q
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, ListView, CreateView, UpdateView, DeleteView
 
+import users
 from ads.models import Category, Ad
 from homework27 import settings
 
@@ -181,7 +183,7 @@ class AdUpdateView(UpdateView):
         self.object.address = ad_data['address']
         self.object.save()
 
-        result = serialize(Ad, ad_data)
+        result = serialize(self.model, self.object)
 
         return JsonResponse(result, safe=False)
 
@@ -190,6 +192,8 @@ class AdListView(ListView):
     model = Ad
 
     def get(self, request, *args, **kwargs):
+        # users = Ad.objects.all()
+        # res = users.annotate(total_ads=Count('ad', filter=Q(ad__is_published=True)))
         super().get(request, *args, **kwargs)
 
         self.object_list = self.object_list.order_by("author_id")
@@ -202,7 +206,8 @@ class AdListView(ListView):
         response = {
             "items": ads,
             "num_pages": paginator.num_pages,
-            "total": paginator.count
+            "total": paginator.count,
+            "res": res
         }
 
         return JsonResponse(response, safe=False)
