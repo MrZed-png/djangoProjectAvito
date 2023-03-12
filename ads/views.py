@@ -140,17 +140,16 @@ class AdDetailView(DetailView):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class AdImageView(UpdateView):
+class AdUploadImageView(UpdateView):
     model = Ad
-    fields = ["name", "image"]
+    fields = ["image"]
 
-    def post(self, request):
+    def post(self, request, *args, **kwargs):
         self.object = self.get_object()
-        ads = self.object
 
-        ads.image = request.FILES['image']
-        ads.save()
-        result = serialize(Ad, ads)
+        self.object.image = request.FILES['image']
+        self.object.save()
+        result = serialize(self.model, self.object)
 
         return JsonResponse(result, safe=False)
 
