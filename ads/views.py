@@ -192,11 +192,10 @@ class AdListView(ListView):
     model = Ad
 
     def get(self, request, *args, **kwargs):
-        # users = Ad.objects.all()
-        # res = users.annotate(total_ads=Count('ad', filter=Q(ad__is_published=True)))
         super().get(request, *args, **kwargs)
 
         self.object_list = self.object_list.order_by("author_id")
+        self.object_list = self.object_list.annotate(total_ads=Count('ad', filter=Q(ad__is_published=True)))
 
         paginator = Paginator(self.object_list, settings.TOTAL_ON_PAGE)
         page_number = request.GET.get("page")
@@ -206,8 +205,7 @@ class AdListView(ListView):
         response = {
             "items": ads,
             "num_pages": paginator.num_pages,
-            "total": paginator.count,
-            "res": res
+            "total": paginator.count
         }
 
         return JsonResponse(response, safe=False)
