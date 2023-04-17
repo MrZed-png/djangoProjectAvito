@@ -1,20 +1,20 @@
 import csv
 import json
 
-ADS_MODEL = 'ads.Ad'
-USER_MODEL = 'users.User'
-LOCATION_MODEL = 'users.models.py.location'
-CATEGORIES_MODEL = 'ads.Category'
+ADS_MODEL = 'ads.ads'
+USER_MODEL = 'users.user'
+LOCATION_MODEL = 'users.location'
+CATEGORIES_MODEL = 'ads.category'
 
 ADS_JSON_FILE_NAME = 'ads.json'
-USER_JSON_FILE_NAME = 'users.json'
+USERS_JSON_FILE_NAME = 'users.json'
+LOCATIONS_JSON_FILE_NAME = 'locations.json'
 CATEGORIES_JSON_FILE_NAME = 'categories.json'
-LOCATION_JSON_FILE_NAME = 'locations.json'
-
 
 def convert_file(csv_file, json_file, model):
     result = []
-    with open(csv_file, encoding='utf-8') as csv_f:
+
+    with open(csv_file, encoding = 'utf-8') as csv_f:
         for row in csv.DictReader(csv_f):
             record = {"model": model}
 
@@ -24,31 +24,35 @@ def convert_file(csv_file, json_file, model):
                 del row['id']
 
             if model == ADS_MODEL:
-                row["price"] = int(row["price"])
-                row["author_id"] = int(row["author_id"])
-                row["category_id"] = int(row["category_id"])
+                row['price'] = int(row['price'])
+                row['author_id'] = int(row['author_id'])
+                row['category_id'] = int(row['category_id'])
 
-                if row["is_published"] == "TRUE":
-                    row["is_published"] = True
+                if row['is_published']== "TRUE":
+                    row['is_published'] = True
                 else:
-                    row["is_published"] = False
+                    row['is_published'] = False
 
             if model == LOCATION_MODEL:
-                row["lat"] = float(row["lat"])
-                row["lng"] = float(row["lng"])
+                row['lat'] = float(row['lat'])
+                row['lng'] = float(row['lng'])
 
             if model == USER_MODEL:
-                row["age"] = int(row["age"])
-                row["location_id"] = int(row["location_id"])
+                row['age'] = int(row['age'])
+                row['location'] = [int(row['location_id'])]
+                del row['location_id']
 
-            record["fields"] = row
+
+
+            record['fields']=row
+
             result.append(record)
 
     with open(json_file, 'w', encoding='utf-8') as json_f:
-        json_f.write(json.dumps(result, ensure_ascii=False))
+        json_f.write(json.dumps(result, ensure_ascii = False))
 
+# convert_file('location.csv', LOCATIONS_JSON_FILE_NAME, LOCATION_MODEL)
+convert_file('user.csv', USERS_JSON_FILE_NAME, USER_MODEL)
+# convert_file('category.csv', CATEGORIES_JSON_FILE_NAME, CATEGORIES_MODEL) #пока модели нет, но надо указывать с приставкой приложения
+# convert_file('ad.csv', ADS_JSON_FILE_NAME, ADS_MODEL)
 
-convert_file('location.csv', LOCATION_JSON_FILE_NAME, LOCATION_MODEL)
-convert_file('user.csv', USER_JSON_FILE_NAME, USER_MODEL)
-convert_file('category.csv', CATEGORIES_JSON_FILE_NAME, CATEGORIES_MODEL)
-convert_file('ad.csv', ADS_JSON_FILE_NAME, ADS_MODEL)

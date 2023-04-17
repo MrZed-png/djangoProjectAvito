@@ -1,4 +1,7 @@
+from django.contrib.auth.models import AbstractUser
 from django.db import models
+
+from users.validators import check_birth_date, check_email
 
 
 class Location(models.Model):
@@ -14,16 +17,18 @@ class Location(models.Model):
         return self.name
 
 
-class User(models.Model):
-    class Roles(models.TextChoices):
-        ADMIN = 'Admin', 'Админ'
-        MEMBER = 'Member', 'Пользователь'
-        MODERATOR = 'Moderator', 'Модератор'
+# Create your models here.
+class User(AbstractUser):
 
-    first_name = models.CharField(max_length=200)
-    last_name = models.CharField(max_length=200)
-    username = models.CharField(max_length=200)
-    password = models.CharField(max_length=200)
-    role = models.CharField(max_length=200, choices=Roles.choices)
-    age = models.PositiveIntegerField()
-    location = models.ForeignKey(Location, on_delete=models.CASCADE)
+    class Roles(models.TextChoices):
+        ADMIN = 'admin', 'Админ'
+        MODERATOR = 'moderator', 'Модератор'
+        MEMBER = 'member', 'Пользователь'
+
+    role = models.CharField(max_length=200, choices=Roles.choices, default=Roles.MEMBER)
+    age = models.PositiveIntegerField(null=True)
+    location = models.ManyToManyField(Location)
+    birth_date = models.DateField(validators=[check_birth_date], null=True, blank=True)
+    email = models.EmailField(unique=True, null=True, validators=[check_email])
+
+
